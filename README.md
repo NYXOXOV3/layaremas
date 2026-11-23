@@ -1,29 +1,39 @@
-# Welcome to your Lovable project
+# Layar Emas
 
-This project was built with [Lovable](https://lovable.dev).
+A movie and TV catalog built with TanStack Start, React, TypeScript, and Supabase.
 
-## Build with Lovable
+## Requirements
 
-Open your project in the [Lovable editor](https://lovable.dev) and keep building.
+- Node.js 22 or newer
+- npm
+- A Supabase project
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: connect the project to GitHub and every change made in Lovable is committed straight to your repository.
-- **Full ownership**: this code is yours. Push to your repository and your changes sync back into Lovable, ready for your next prompt.
+## Setup
+
+```powershell
+npm ci
+Copy-Item .env.example .env
+```
+
+Set the Supabase project URL and publishable key in `.env`. Add server-only keys as needed; never commit `.env` or expose `SUPABASE_SERVICE_ROLE_KEY` with a `VITE_` prefix.
+
+The repository contains only incremental Supabase migrations, not the original baseline schema. A new Supabase project must have the application's base tables, functions, triggers, Storage buckets, and RLS policies before applying the migrations in `supabase/migrations/`.
+
+Configure Google OAuth and the application's allowed redirect URLs in the Supabase dashboard if you want to enable Google sign-in.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+```powershell
 npm run dev
 ```
 
-## Built with
+## Build
 
-- TanStack Start
-- TypeScript
-- React
-- Tailwind CSS
+```powershell
+npm run build
+npm run preview
+```
+
+The application uses server-side rendering and server functions, so deploy it to a Node.js-capable host. Vercel is selected automatically on Vercel; other hosts default to Nitro's `node-server` preset. Set `NITRO_PRESET` to choose another supported Nitro target.
+
+See [installasi.md](./installasi.md) for local and hosting instructions, and [DEPLOY-VERCEL.md](./DEPLOY-VERCEL.md) for Vercel-specific setup.

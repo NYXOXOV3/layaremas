@@ -20,7 +20,7 @@ Panduan ini mencakup instalasi lokal, Vercel, cPanel, VPS, aaPanel, dan konfigur
 
 ### 1.1 Pilih backend
 
-Aplikasi harus tersambung ke satu project Supabase yang sama untuk browser dan server. Bisa gunakan Supabase/Lovable Cloud yang sudah terhubung ke project, atau Supabase yang kamu kelola sendiri.
+Aplikasi harus tersambung ke satu project Supabase mandiri yang sama untuk browser dan server.
 
 **Repository ini tidak menyertakan migrasi baseline database.** File di `supabase/migrations/` hanya migrasi tambahan dan tidak dapat membuat database kosong menjadi backend aplikasi lengkap. Database baru harus terlebih dahulu diberi schema dasar project—termasuk tabel, enum, function/RPC, trigger, Storage, dan RLS—dari backend project yang sudah berjalan. Jangan menganggap menjalankan tiga migrasi tambahan di bawah saja sudah cukup untuk membuat backend baru.
 
@@ -63,13 +63,13 @@ Jangan menjalankan ulang file yang sudah berhasil diterapkan; beberapa file buka
 2. Simpan sebagai `TMDB_API_KEY` di environment **server** pada host.
 3. Key TMDB yang pernah dibagikan atau masuk repository sebaiknya dirotasi.
 
-TMDB key juga bisa disimpan melalui **Admin → Appearance & SEO → TMDB API key** setelah migrasi TMDB diterapkan. Mekanisme fallback admin memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Jika memakai Lovable Cloud yang tidak menyediakan service-role key, gunakan `TMDB_API_KEY` environment.
+TMDB key juga bisa disimpan melalui **Admin → Appearance & SEO → TMDB API key** setelah migrasi TMDB diterapkan. Mekanisme fallback admin memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Jika backend tidak menyediakan service-role key, gunakan `TMDB_API_KEY` environment.
 
 Untuk video dari private Supabase Storage, buat/configure bucket dan policy sesuai schema dasar project, lalu masukkan server dengan base URL `storage://<nama-bucket>`. Signed URL Storage dan sejumlah operasi privileged memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Hanya masukkan video yang memang kamu miliki atau berlisensi untuk ditayangkan.
 
 ## 2. Environment variables
 
-Buat `.env` lokal dari template [.env.example](./.env.example), lalu ganti URL dan key contoh dengan nilai backend kamu sendiri. Template yang ada mungkin berisi nilai public dari project sumber; **jangan menganggapnya sebagai kredensial project baru**.
+Buat `.env` lokal dari template [.env.example](./.env.example), lalu ganti semua placeholder dengan nilai dari project Supabase mandiri kamu.
 
 ```dotenv
 # Browser: disisipkan saat build
@@ -83,6 +83,10 @@ SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 # Server secrets
 TMDB_API_KEY=YOUR_TMDB_API_KEY
 SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SECRET_KEY
+TMDB_SYNC_CRON_SECRET=YOUR_RANDOM_CRON_SECRET
+
+# Optional: Drizzle migrations only
+DATABASE_URL=YOUR_POSTGRES_CONNECTION_STRING
 ```
 
 | Variabel | Kapan diperlukan |
@@ -93,6 +97,8 @@ SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVER_ONLY_SECRET_KEY
 | `SUPABASE_PUBLISHABLE_KEY` | Wajib untuk server functions yang memakai client publik/RLS. |
 | `TMDB_API_KEY` | Direkomendasikan; server memakai ini untuk meminta metadata TMDB. |
 | `SUPABASE_SERVICE_ROLE_KEY` | Opsional untuk sebagian tampilan publik; diperlukan untuk operasi privileged, penyimpanan katalog tertentu, Storage signing, dan fallback TMDB key admin. Hanya server. |
+| `TMDB_SYNC_CRON_SECRET` | Opsional; bearer secret untuk endpoint sinkronisasi katalog terjadwal. |
+| `DATABASE_URL` | Opsional; koneksi PostgreSQL yang dipakai Drizzle CLI saat menjalankan migrasi. |
 
 `VITE_*` adalah nilai publik dan masuk ke bundle browser. Jangan pernah membuat `VITE_SUPABASE_SERVICE_ROLE_KEY` atau `VITE_TMDB_API_KEY`. Pada Vercel, isi variabel di Project Settings; pada cPanel/aaPanel isi melalui environment aplikasi; pada VPS gunakan environment file yang hanya bisa dibaca user service.
 

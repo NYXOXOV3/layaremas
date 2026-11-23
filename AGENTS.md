@@ -1,13 +1,3 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
 ## Architecture rules
 - Watch-page extras reuse catalog details, fetch real season episodes and movie recommendations through TMDB server functions, and keep episode playback coordinates in the URL so selection survives refresh.
 - TMDB is only called from server functions in src/lib/tmdb.functions.ts so the key stays server-side.
@@ -25,4 +15,4 @@
 - Watch Party uses authenticated join RPCs, bcrypt PIN hashes in a locked secrets table, durable memberships and rate-limited PIN attempts; only active public rooms are listed. Room chat, presence and host playback state use membership-protected database reads with short polling rather than unprotected broadcast topics, so private room codes alone grant no access. Existing invite-only links remain usable.
 - Hover previews share a single token owner; dismissal invalidates pending fetches and removes the trailer iframe to prevent stale playback.
 - Automated catalog sync uses authenticated managed callbacks, official TMDB ID exports, a durable hydration queue and overlapping changes polling; bounded batches and database leases preserve progress without exposing credentials.
-- Vercel deployability: vite.config.ts pins nitro preset "vercel" only when VERCEL/NITRO_PRESET=vercel is set, so Lovable's Cloudflare build is untouched; DEPLOY-VERCEL.md and .env.example document the host-side env vars.
+- Vercel deployability: vite.config.ts selects Nitro's Vercel preset on Vercel and defaults to node-server elsewhere; DEPLOY-VERCEL.md and .env.example document host-side environment variables.

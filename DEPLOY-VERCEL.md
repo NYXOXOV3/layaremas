@@ -19,9 +19,9 @@ Pilih project dan environment **Development** saat diminta. `vercel dev` menjala
 
 Untuk `npm run dev` langsung, taruh server secret di `.env` atau `.env.local`, lalu restart Vite. `.env.example` hanya template dan tidak dibaca aplikasi; jangan isi dengan key sungguhan.
 
-## 1. Hubungkan GitHub
+## 1. Hubungkan repository
 
-Di Lovable: **Project settings → Git → Connect**, lalu pilih akun GitHub. Setiap perubahan di Lovable akan ter-push otomatis ke repo.
+Hubungkan repository GitHub langsung dari Vercel, atau deploy menggunakan Vercel CLI dari salinan lokal repository.
 
 ## 2. Impor project di Vercel
 
@@ -41,10 +41,11 @@ Set di Vercel (Project → Settings → Environment Variables):
 | `SUPABASE_PUBLISHABLE_KEY` | Publishable key backend yang sama (dipakai server functions) |
 | `TMDB_API_KEY` | Opsional; jika diisi, selalu mengalahkan key admin (server secret) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Hanya untuk backend Supabase yang kamu kelola; dibutuhkan operasi privileged dan fallback key admin |
+| `TMDB_SYNC_CRON_SECRET` | Opsional; bearer secret untuk endpoint sinkronisasi katalog terjadwal |
 
-Contoh nama variabel ada di `.env.example`. Gunakan nilai dari backend aktif; ledger migrasi project menyatakan key `.env` lama dari project sumber tidak dapat dipakai ulang.
+Contoh nama variabel ada di `.env.example`. Gunakan URL dan key dari project Supabase mandiri yang aktif; jangan gunakan kredensial dari backend lama.
 
-**Penting:** `SUPABASE_SERVICE_ROLE_KEY` hanya boleh menjadi server environment variable (jangan gunakan prefix `VITE_`). Public TMDB requests tetap menampilkan data saat key ini tidak ada, tetapi penyimpanan `media_catalog` dilewati dan memberi warning server. Operasi admin/privileged, signed URL Storage, dan catalog sync tetap memerlukan service-role access. Backend Lovable Cloud tidak menyediakan key ini; untuk seluruh fitur tersebut di Vercel, gunakan backend Supabase yang kamu kelola sendiri dan atur key di Vercel.
+**Penting:** `SUPABASE_SERVICE_ROLE_KEY` hanya boleh menjadi server environment variable (jangan gunakan prefix `VITE_`). Public TMDB requests tetap menampilkan data saat key ini tidak ada, tetapi penyimpanan `media_catalog` dilewati dan memberi warning server. Operasi admin/privileged, signed URL Storage, dan catalog sync tetap memerlukan service-role access.
 
 Jika `.env` pernah masuk commit atau dibagikan, menambahkan aturan ignore tidak menghapus riwayatnya: cek repo dan rotasi credential privat yang terdampak. Jangan mengirim nilai secret lewat chat.
 
@@ -52,7 +53,7 @@ Jika `.env` pernah masuk commit atau dibagikan, menambahkan aturan ignore tidak 
 
 Alternatifnya, admin dapat menyimpan TMDB key dari **Admin → Appearance & SEO → TMDB API key**. Jalankan isi [migrasi SQL](./supabase/migrations/20261120135300_tmdb_api_key_admin.sql) satu kali di Supabase SQL Editor pada backend target sebelum memakai fitur ini (repo ini tidak menyertakan riwayat migrasi database sebelumnya). Nilai tersimpan tidak pernah dikirim kembali ke browser; jika `TMDB_API_KEY` di environment tersedia, nilainya selalu menang.
 
-Fallback admin untuk request TMDB publik memerlukan `SUPABASE_SERVICE_ROLE_KEY` pada server. Lovable Cloud tidak menyediakan key tersebut; di sana gunakan `TMDB_API_KEY` environment. Untuk admin fallback di Vercel, gunakan backend Supabase yang dikelola sendiri dan atur service-role key hanya sebagai environment server rahasia.
+Fallback admin untuk request TMDB publik memerlukan `SUPABASE_SERVICE_ROLE_KEY` pada server. Jika tidak tersedia, gunakan `TMDB_API_KEY` environment. Atur service-role key hanya sebagai environment server rahasia.
 
 ## Watch Party terjadwal dan kapasitas
 

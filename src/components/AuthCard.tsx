@@ -1,16 +1,19 @@
 import type { ReactNode } from "react";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import hero from "@/assets/hero.jpg";
 import { useQuery } from "@tanstack/react-query";
 import { settingsQuery } from "@/lib/settings.functions";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   const { data: s } = useQuery(settingsQuery);
   async function google() {
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (r.error) toast.error("Google sign-in failed");
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: window.location.origin },
+    });
+    if (error) toast.error("Google sign-in failed");
   }
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 pt-16">
