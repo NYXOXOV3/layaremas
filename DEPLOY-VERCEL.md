@@ -51,17 +51,17 @@ Jika `.env` pernah masuk commit atau dibagikan, menambahkan aturan ignore tidak 
 
 ## TMDB key melalui admin
 
-Alternatifnya, admin dapat menyimpan TMDB key dari **Admin → Appearance & SEO → TMDB API key**. Jalankan isi [migrasi SQL](./supabase/migrations/20261120135300_tmdb_api_key_admin.sql) satu kali di Supabase SQL Editor pada backend target sebelum memakai fitur ini (repo ini tidak menyertakan riwayat migrasi database sebelumnya). Nilai tersimpan tidak pernah dikirim kembali ke browser; jika `TMDB_API_KEY` di environment tersedia, nilainya selalu menang.
+Alternatifnya, admin dapat menyimpan TMDB key dari **Admin → Appearance & SEO → TMDB API key**. Untuk project Supabase baru, terapkan semua file di `supabase/migrations/` dalam urutan nama file; [migrasi baseline](./supabase/migrations/20261120120000_initial_schema.sql) harus berjalan lebih dulu. Pada backend yang sudah berjalan, terapkan hanya migrasi yang memang belum pernah dijalankan. Nilai tersimpan tidak pernah dikirim kembali ke browser; jika `TMDB_API_KEY` di environment tersedia, nilainya selalu menang.
 
 Fallback admin untuk request TMDB publik memerlukan `SUPABASE_SERVICE_ROLE_KEY` pada server. Jika tidak tersedia, gunakan `TMDB_API_KEY` environment. Atur service-role key hanya sebagai environment server rahasia.
 
 ## Watch Party terjadwal dan kapasitas
 
-Untuk backend yang sudah memiliki tabel dan RPC Watch Party, jalankan [migrasi Watch Party](./supabase/migrations/20261120135400_watch_party_schedule_capacity.sql) satu kali di Supabase SQL Editor setelah schema Watch Party awal tersedia. Repo ini tidak menyertakan migrasi baseline database, jadi file ini bukan migrasi untuk database kosong. Fitur ini mengizinkan peserta masuk sebelum waktu mulai dan menunggu; kapasitas 2–50 menghitung anggota aktif dalam 120 detik terakhir, termasuk host.
+Pastikan baseline dan migrasi Watch Party telah diterapkan satu kali. Untuk database baru, jalankan file dalam urutan nama file; baseline menyediakan tabel dan RPC Watch Party awal. Fitur ini mengizinkan peserta masuk sebelum waktu mulai dan menunggu; kapasitas 2–50 menghitung anggota aktif dalam 120 detik terakhir, termasuk host.
 
 ## Favorites dan koleksi pribadi
 
-Untuk menyimpan Favorites dan koleksi per akun, jalankan [migrasi Favorites dan Collections](./supabase/migrations/20261120143000_user_favorites_collections.sql) satu kali di Supabase SQL Editor setelah schema dasar Supabase tersedia. Tabel menggunakan RLS sehingga pengguna hanya dapat membaca dan mengubah data miliknya.
+Favorites dan koleksi per akun dibuat oleh [migrasi Favorites dan Collections](./supabase/migrations/20261120143000_user_favorites_collections.sql) setelah baseline diterapkan. Tabel menggunakan RLS sehingga pengguna hanya dapat membaca dan mengubah data miliknya.
 
 ## 4. Update redirect sign-in
 

@@ -24,6 +24,7 @@ export const Route = createFileRoute("/tv-shows")({
   component: () => {
     const search = Route.useSearch();
     const navigate = useNavigate({ from: "/tv-shows" });
-    return <BrowseGrid type="tv" title="TV Shows" filters={search} onChange={(f) => navigate({ search: f })} />;
+    const isAnime = search.genre === "16" && search.country === "JP";
+    return <BrowseGrid type="tv" title={isAnime ? "Anime" : "TV Shows"} filters={search} onChange={(f) => navigate({ search: f })} />;
   },
 });

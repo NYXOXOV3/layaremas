@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getGenres } from "@/lib/browse.functions";
 import { AdSlot } from "@/components/AdSlot";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/genres")({
   head: () => ({
@@ -22,8 +23,8 @@ function Genres() {
   const t = useQuery({ queryKey: ["genres", "tv"], queryFn: () => getGenres({ data: { type: "tv" } }) });
   const chip = "rounded-2xl border border-border bg-card px-5 py-4 font-display text-lg transition hover:border-primary hover:text-primary";
   return (
-    <div className="mx-auto max-w-7xl space-y-12 px-4 pb-16 pt-28 md:px-8">
-      <h1 className="text-5xl font-bold">Genres</h1>
+    <div className="mx-auto max-w-7xl space-y-12 px-4 pb-16 pt-20 md:px-8">
+      <PageHero title="Genres" eyebrow="Browse catalog" description="Explore movies and TV series grouped by the stories and moods you love." />
       <AdSlot placement="browse_top" />
       <section>
         <h2 className="mb-4 text-2xl font-semibold">Movies</h2>

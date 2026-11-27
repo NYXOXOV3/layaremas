@@ -17,7 +17,7 @@ Copy-Item .env.example .env
 
 Set the Supabase project URL and publishable key in `.env`. Add server-only keys as needed; never commit `.env` or expose `SUPABASE_SERVICE_ROLE_KEY` with a `VITE_` prefix.
 
-The repository contains only incremental Supabase migrations, not the original baseline schema. A new Supabase project must have the application's base tables, functions, triggers, Storage buckets, and RLS policies before applying the migrations in `supabase/migrations/`.
+For a fresh Supabase project, apply the SQL migrations in `supabase/migrations/` in filename order. The first file creates the baseline schema; later files add features. Do not apply the baseline to a database already in use. See [installasi.md](./installasi.md) for the full setup and migration steps.
 
 Configure Google OAuth and the application's allowed redirect URLs in the Supabase dashboard if you want to enable Google sign-in.
 

@@ -509,6 +509,46 @@ export type Database = {
         };
         Relationships: [];
       };
+      shortmax_api_keys: {
+        Row: {
+          api_key: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          request_date: string;
+          requests_today: number;
+          updated_by: string | null;
+        };
+        Insert: {
+          api_key: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name: string;
+          request_date?: string;
+          requests_today?: number;
+          updated_by?: string | null;
+        };
+        Update: {
+          api_key?: string;
+          created_at?: string;
+          id?: string;
+          is_active?: boolean;
+          name?: string;
+          request_date?: string;
+          requests_today?: number;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       tmdb_api_settings: {
         Row: {
           api_key: string;
@@ -828,6 +868,32 @@ export type Database = {
       admin_clear_tmdb_api_key: {
         Args: never;
         Returns: undefined;
+      };
+      admin_delete_shortmax_api_key: {
+        Args: { p_id: string };
+        Returns: undefined;
+      };
+      admin_set_shortmax_api_key: {
+        Args: {
+          p_api_key: string;
+          p_id: string | null;
+          p_is_active: boolean;
+          p_name: string;
+        };
+        Returns: string;
+      };
+      admin_shortmax_api_keys: {
+        Args: never;
+        Returns: {
+          api_key: string;
+          created_at: string;
+          id: string;
+          is_active: boolean;
+          name: string;
+          request_date: string;
+          requests_today: number;
+          updated_by: string | null;
+        }[];
       };
       is_party_member: { Args: { p_code: string }; Returns: boolean };
       is_premium: { Args: { _user_id: string }; Returns: boolean };

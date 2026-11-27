@@ -4,6 +4,7 @@ import { Radio, Search } from "lucide-react";
 import { AdSlot } from "@/components/AdSlot";
 import { Input } from "@/components/ui/input";
 import { NETWORKS } from "@/lib/catalog";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/networks")({
   head: () => ({
@@ -29,7 +30,8 @@ function NetworksPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 md:px-8">
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 md:px-8">
+      <PageHero title="TV Networks" eyebrow="Discover" description="Browse major networks and open a collection to see its associated TV shows and movies." />
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-primary">

@@ -280,6 +280,56 @@ export const deleteVideo = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+const shortmaxKeySchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1).max(120),
+  apiKey: z.string().min(1).max(4096),
+  isActive: z.boolean().default(true),
+});
+
+export const listShortMaxApiKeys = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { data } = await context.supabase.rpc("admin_shortmax_api_keys");
+    const rows = data as Array<{ id: string; name: string; api_key: string; is_active: boolean; requests_today: number; request_date: string }>;
+    return rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      apiKey: row.api_key,
+      isActive: row.is_active,
+      requestsToday: row.requests_today,
+      requestDate: row.request_date,
+    }));
+  });
+
+export const saveShortMaxApiKey = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => shortmaxKeySchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { data: id, error } = await context.supabase.rpc("admin_set_shortmax_api_key", {
+      p_id: data.id ?? null,
+      p_name: data.name,
+      p_api_key: data.apiKey,
+      p_is_active: data.isActive,
+    });
+    if (error) throw new Error("Could not save ShortMax API key");
+    return { id };
+  });
+
+export const deleteShortMaxApiKey = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.rpc("admin_delete_shortmax_api_key", {
+      p_id: data.id,
+    });
+    if (error) throw new Error("Could not delete ShortMax API key");
+    return { ok: true };
+  });
+
 export const listAdvertisements = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

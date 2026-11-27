@@ -22,7 +22,7 @@ Panduan ini mencakup instalasi lokal, Vercel, cPanel, VPS, aaPanel, dan konfigur
 
 Aplikasi harus tersambung ke satu project Supabase mandiri yang sama untuk browser dan server.
 
-**Repository ini tidak menyertakan migrasi baseline database.** File di `supabase/migrations/` hanya migrasi tambahan dan tidak dapat membuat database kosong menjadi backend aplikasi lengkap. Database baru harus terlebih dahulu diberi schema dasar project—termasuk tabel, enum, function/RPC, trigger, Storage, dan RLS—dari backend project yang sudah berjalan. Jangan menganggap menjalankan tiga migrasi tambahan di bawah saja sudah cukup untuk membuat backend baru.
+Repository ini menyertakan baseline SQL untuk project Supabase **baru**: tabel inti, enum, RPC, trigger, RLS, dan bucket Storage. Jika kamu ingin database bersih, buat project Supabase baru dan terapkan rangkaian migrasi dari awal. Jangan jalankan baseline pada project yang sudah berisi schema/data; migrasi baseline bukan perintah reset dan tidak menghapus data.
 
 ### 1.2 Ambil URL dan API keys
 
@@ -47,15 +47,16 @@ Di **Authentication → URL Configuration**:
 
 Pendaftaran mengirim email konfirmasi kembali ke origin aplikasi; reset password kembali ke `/reset-password`. Pastikan SMTP/email confirmation di Supabase sudah dikonfigurasi untuk penggunaan produksi. Pada schema dasar project ini, signup pertama dipromosikan menjadi admin oleh trigger `handle_new_user`; pastikan trigger dan tabel roles dari schema dasar tersedia sebelum signup pertama.
 
-### 1.4 Terapkan migrasi tambahan
+### 1.4 Terapkan schema dan migrasi
 
-Setelah schema dasar tersedia, buka **SQL Editor** dan jalankan hanya migrasi yang belum diterapkan, satu per satu, sesuai urutan:
+Untuk project baru, buka **SQL Editor** dan jalankan isi file berikut satu per satu, dalam urutan ini:
 
-1. [TMDB API key admin](./supabase/migrations/20261120135300_tmdb_api_key_admin.sql) — memerlukan role `admin`, function `has_role`, dan `admin_audit_log` dari schema dasar.
-2. [Jadwal dan kapasitas Watch Party](./supabase/migrations/20261120135400_watch_party_schedule_capacity.sql) — memerlukan tabel dan RPC Watch Party awal.
-3. [Favorites dan koleksi pribadi](./supabase/migrations/20261120143000_user_favorites_collections.sql) — menambahkan tabel dengan RLS untuk data per akun.
+1. [Baseline database](./supabase/migrations/20261120120000_initial_schema.sql) — membuat schema inti, RPC, trigger signup pertama sebagai admin, RLS, serta bucket private `branding` dan `videos`.
+2. [TMDB API key admin](./supabase/migrations/20261120135300_tmdb_api_key_admin.sql).
+3. [Jadwal dan kapasitas Watch Party](./supabase/migrations/20261120135400_watch_party_schedule_capacity.sql).
+4. [Favorites dan koleksi pribadi](./supabase/migrations/20261120143000_user_favorites_collections.sql).
 
-Jangan menjalankan ulang file yang sudah berhasil diterapkan; beberapa file bukan migrasi idempotent. Jangan menonaktifkan RLS untuk mengatasi error akses. Selidiki policy dan role yang sesuai.
+Salin dan jalankan satu file per query di SQL Editor, tunggu sampai sukses sebelum melanjutkan. Jangan menjalankan ulang file yang sudah berhasil diterapkan; beberapa file bukan migrasi idempotent. Untuk database yang sudah digunakan, periksa schema dan migration history terlebih dahulu—jangan menimpa atau menghapus tabel untuk mengatasi error. Jangan menonaktifkan RLS.
 
 ### 1.5 TMDB dan Supabase Storage
 
@@ -65,7 +66,7 @@ Jangan menjalankan ulang file yang sudah berhasil diterapkan; beberapa file buka
 
 TMDB key juga bisa disimpan melalui **Admin → Appearance & SEO → TMDB API key** setelah migrasi TMDB diterapkan. Mekanisme fallback admin memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Jika backend tidak menyediakan service-role key, gunakan `TMDB_API_KEY` environment.
 
-Untuk video dari private Supabase Storage, buat/configure bucket dan policy sesuai schema dasar project, lalu masukkan server dengan base URL `storage://<nama-bucket>`. Signed URL Storage dan sejumlah operasi privileged memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Hanya masukkan video yang memang kamu miliki atau berlisensi untuk ditayangkan.
+Baseline membuat bucket private `branding` dan `videos`. Setelah migrasi, buka **Storage → Policies** dan buat policy untuk `storage.objects` bagi role `authenticated`: izinkan operasi admin pada bucket `branding` dan `videos`, dengan kondisi `bucket_id = 'branding' AND public.has_role(auth.uid(), 'admin'::public.app_role)` atau `bucket_id = 'videos' AND public.has_role(auth.uid(), 'admin'::public.app_role)` pada **USING** dan **WITH CHECK**. Jangan jalankan `ALTER TABLE`/`GRANT` pada `storage.objects`; tabel ini dikelola Supabase dan policy dapat dibuat melalui Dashboard. Tambahkan server dengan base URL `storage://videos`; akses video saat playback tetap melalui signed URL server setelah pemeriksaan sumber. Jika memakai bucket lain, buat bucket private dan policy upload admin yang setara. Signed URL Storage dan sejumlah operasi privileged memerlukan `SUPABASE_SERVICE_ROLE_KEY` di server. Hanya masukkan video yang memang kamu miliki atau berlisensi untuk ditayangkan.
 
 ## 2. Environment variables
 
@@ -420,5 +421,5 @@ Jika plugin aaPanel tidak menerima file `.mjs` atau path startup bertingkat, bua
 | VPS/cPanel/aaPanel menampilkan 502/503 | Cek status proses Node, log aplikasi, Node 22+, port yang disediakan, dan target reverse proxy. |
 | Build Node menghasilkan `cloudflare-module` | Build ulang dengan `NITRO_PRESET=node-server` dan pastikan `VERCEL` tidak tersetel. |
 | File detail bekerja lewat klik tetapi 404 saat refresh | Pastikan semua request domain diteruskan ke SSR Node server. Jangan host hanya folder `.output/public`. |
-| Favorites/koleksi/Watch Party mendapat error database | Pastikan schema dasar tersedia dan migrasi tambahan yang sesuai sudah diterapkan satu kali. |
+| Favorites/koleksi/Watch Party mendapat error database | Pastikan baseline dan migrasi fitur diterapkan satu kali dalam urutan yang tercantum di bagian 1.4. |
 

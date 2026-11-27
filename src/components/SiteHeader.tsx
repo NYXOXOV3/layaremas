@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useLocation } from "@tanstack/react-router";
 import {
   CalendarDays,
   Clapperboard,
@@ -11,6 +11,7 @@ import {
   Radio,
   Search,
   Shield,
+  Smartphone,
   Sparkles,
   Tags,
   Tv,
@@ -30,12 +31,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export function SiteHeader() {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const qc = useQueryClient();
   const [q, setQ] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { data: settings } = useQuery(settingsQuery);
@@ -82,9 +92,6 @@ export function SiteHeader() {
           ) : (
             <Film className="h-6 w-6 shrink-0 text-primary" />
           )}
-          <span className="font-display text-xl font-semibold">
-            {mounted ? (settings?.site_name ?? "Layar Emas") : "Layar Emas"}
-          </span>
         </Link>
         <nav
           aria-label="Main navigation"
@@ -95,6 +102,7 @@ export function SiteHeader() {
               ["/", "Home", Home],
               ["/movies", "Movies", Film],
               ["/tv-shows", "TV Shows", Tv],
+              ["/shorts", "Shorts", Smartphone],
               ["/genres", "Genre", Tags],
               ["/party", "Watch Party", Users],
             ] as const
@@ -161,21 +169,51 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
-        <form
-          className="ml-auto hidden max-w-xs sm:flex flex-1 items-center gap-2 rounded-full border border-border bg-card/60 px-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            navigate({ to: "/search", search: { q } });
-          }}
-        >
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search movies & shows"
-            className="h-9 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-          />
-        </form>
+        <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+          <DialogTrigger asChild>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Open search"
+              title="Search"
+              className="ml-auto rounded-full sm:ml-0"
+            >
+              <Search />
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="top-24 translate-y-0 sm:top-28">
+            <DialogHeader>
+              <DialogTitle>Search</DialogTitle>
+            </DialogHeader>
+            <form
+              className="flex items-center gap-2 rounded-full border border-border bg-card px-3"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setSearchOpen(false);
+                if (location.pathname === "/shorts") {
+                  navigate({ to: "/shorts", search: { q, provider: "shortmax" } });
+                } else {
+                  navigate({ to: "/search", search: { q } });
+                }
+              }}
+            >
+              <Search className="h-4 w-4 text-muted-foreground" />
+              <input
+                autoFocus
+                value={q}
+                onChange={(event) => setQ(event.target.value)}
+                placeholder={
+                  location.pathname === "/shorts" ? "Search short dramas" : "Search movies & shows"
+                }
+                className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              />
+              <Button type="submit" size="sm" variant="hero" className="rounded-full">
+                Search
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
         <Button
           asChild
           variant="ghost"

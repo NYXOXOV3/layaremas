@@ -3,6 +3,7 @@ import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { MediaCard } from "@/components/MediaCard";
 import { AdSlot } from "@/components/AdSlot";
+import { PageHero } from "@/components/PageHero";
 import { discover, getGenres } from "@/lib/browse.functions";
 import { COUNTRIES, YEARS } from "@/lib/catalog";
 
@@ -34,8 +35,17 @@ export function BrowseGrid({
   const sel = "h-9 rounded-full border border-input bg-card px-3 text-sm";
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 md:px-8">
-      <h1 className="text-4xl font-bold md:text-5xl">{title}</h1>
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 md:px-8">
+      <PageHero
+        title={title}
+        eyebrow={type === "movie" ? "Movie catalog" : "Series catalog"}
+        description={
+          title === "Anime"
+            ? "Japanese animation series, from popular seasonal titles to long-running favorites."
+            : `Discover ${type === "movie" ? "movies" : "TV series"} by genre, year, country and popularity.`
+        }
+        items={res.data?.results ?? []}
+      />
       <div className="mt-6 flex flex-wrap gap-2">
         <select className={sel} value={filters.genre ?? ""} onChange={(e) => onChange({ ...filters, genre: e.target.value || undefined, page: 1 })}>
           <option value="">All genres</option>

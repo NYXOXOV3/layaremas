@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { COUNTRIES } from "@/lib/catalog";
 import { AdSlot } from "@/components/AdSlot";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/countries")({
   head: () => ({
@@ -20,8 +21,8 @@ const flag = (code: string) => String.fromCodePoint(...[...code].map((c) => 1273
 
 function Countries() {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 md:px-8">
-      <h1 className="text-5xl font-bold">Countries</h1>
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 md:px-8">
+      <PageHero title="Countries" eyebrow="Worldwide catalog" description="Browse Indonesian, Korean, Japanese, Hollywood and more." />
       <AdSlot placement="browse_top" />
       <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {COUNTRIES.map((c) => (

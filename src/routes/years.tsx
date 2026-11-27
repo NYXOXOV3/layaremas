@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { YEARS } from "@/lib/catalog";
 import { AdSlot } from "@/components/AdSlot";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/years")({
   head: () => ({
@@ -19,8 +20,8 @@ export const Route = createFileRoute("/years")({
 function Years() {
   const decades = [...new Set(YEARS.map((y) => Math.floor(y / 10) * 10))];
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 pb-16 pt-28 md:px-8">
-      <h1 className="text-5xl font-bold">Years</h1>
+    <div className="mx-auto max-w-7xl space-y-10 px-4 pb-16 pt-20 md:px-8">
+      <PageHero title="Years" eyebrow="Browse catalog" description="Find movies and TV shows from every release era." />
       <AdSlot placement="browse_top" />
       {decades.map((d) => (
         <section key={d}>

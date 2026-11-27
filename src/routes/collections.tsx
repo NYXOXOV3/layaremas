@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { COLLECTIONS } from "@/lib/catalog";
 import { AdSlot } from "@/components/AdSlot";
+import { PageHero } from "@/components/PageHero";
 
 export const Route = createFileRoute("/collections")({
   head: () => ({
@@ -18,9 +19,8 @@ export const Route = createFileRoute("/collections")({
 
 function Collections() {
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 md:px-8">
-      <h1 className="text-5xl font-bold">Collections</h1>
-      <p className="mt-2 text-muted-foreground">Studios and film franchises.</p>
+    <div className="mx-auto max-w-7xl px-4 pb-16 pt-20 md:px-8">
+      <PageHero title="Collections" eyebrow="Franchises & studios" description="Explore famous studios and film franchises in one place." />
       <AdSlot placement="collection_top" />
       <div className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {COLLECTIONS.map((c) => (
