@@ -1,27 +1,11 @@
 import { Link, useNavigate, useLocation } from "@tanstack/react-router";
-import {
-  CalendarDays,
-  Clapperboard,
-  Film,
-  Globe,
-  Home,
-  Layers,
-  LogOut,
-  MoreHorizontal,
-  Radio,
-  Search,
-  Shield,
-  Smartphone,
-  Sparkles,
-  Tags,
-  Tv,
-  User,
-  Users,
-} from "lucide-react";
+import { Film, LogOut, User, Users, Shield, Clapperboard, Home, Tv, Tags, Sparkles, MoreHorizontal, Radio, CalendarDays, Globe, Layers, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { settingsQuery } from "@/lib/settings.functions";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -50,7 +32,6 @@ export function SiteHeader() {
   const [mounted, setMounted] = useState(false);
   const { data: settings } = useQuery(settingsQuery);
 
-  // Floating pill after scrolling down; transparent bar while at the very top.
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
@@ -58,8 +39,6 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Custom branding only after hydration: the server may have site settings
-  // the client cache does not have yet, which would mismatch the first render.
   useEffect(() => setMounted(true), []);
   const showBranding = mounted && !!settings?.logo_url;
   const logoUrl = showBranding ? (settings?.logo_url ?? undefined) : undefined;
@@ -76,13 +55,13 @@ export function SiteHeader() {
       className={`fixed inset-x-0 z-40 transition-all duration-300 ${scrolled ? "top-3" : "top-0"}`}
     >
       <div
-        className={`mx-auto flex items-center gap-4 px-4 transition-all duration-300 md:gap-6 md:px-8 ${
+        className={`mx-auto flex items-center gap-4 px-4 transition-all duration-300 md:px-8 ${
           scrolled
             ? "h-14 max-w-6xl rounded-full border border-border/60 bg-background/80 shadow-glow backdrop-blur-xl"
             : "h-16 max-w-7xl rounded-none border-0 bg-transparent shadow-none backdrop-blur-none"
         }`}
       >
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 flex-shrink-0">
           {logoUrl ? (
             <img
               src={logoUrl}
@@ -93,16 +72,17 @@ export function SiteHeader() {
             <Film className="h-6 w-6 shrink-0 text-primary" />
           )}
         </Link>
+
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-2 text-sm text-muted-foreground lg:flex"
+          className="hidden items-center gap-2 text-sm text-muted-foreground lg:flex flex-1 justify-center"
         >
           {(
             [
               ["/", "Home", Home],
               ["/movies", "Movies", Film],
               ["/tv-shows", "TV Shows", Tv],
-              ["/shorts", "Shorts", Smartphone],
+              ["/anime", "Anime", Sparkles],
               ["/genres", "Genre", Tags],
               ["/party", "Watch Party", Users],
             ] as const
@@ -114,22 +94,12 @@ export function SiteHeader() {
               title={label}
               className="flex items-center gap-1.5 rounded-full px-2 py-2 hover:bg-foreground/10 hover:text-foreground xl:px-2.5"
               activeProps={{ className: "text-primary" }}
+              activeOptions={{ exact: to !== "/anime" }}
             >
               <Icon className="h-4 w-4 shrink-0" />
               <span className="hidden xl:inline">{label}</span>
             </Link>
           ))}
-          <Link
-            to="/tv-shows"
-            search={{ genre: "16", country: "JP" }}
-            aria-label="Anime"
-            title="Anime"
-            className="flex items-center gap-1.5 rounded-full px-2 py-2 hover:bg-foreground/10 hover:text-foreground xl:px-2.5"
-            activeProps={{ className: "text-primary" }}
-          >
-            <Sparkles className="h-4 w-4 shrink-0" />
-            <span className="hidden xl:inline">Anime</span>
-          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -169,6 +139,7 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         </nav>
+
         <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
           <DialogTrigger asChild>
             <Button
@@ -177,7 +148,7 @@ export function SiteHeader() {
               size="icon"
               aria-label="Open search"
               title="Search"
-              className="ml-auto rounded-full sm:ml-0"
+              className="hidden lg:flex"
             >
               <Search />
             </Button>
@@ -191,11 +162,7 @@ export function SiteHeader() {
               onSubmit={(event) => {
                 event.preventDefault();
                 setSearchOpen(false);
-                if (location.pathname === "/shorts") {
-                  navigate({ to: "/shorts", search: { q, provider: "shortmax" } });
-                } else {
-                  navigate({ to: "/search", search: { q } });
-                }
+                navigate({ to: "/search", search: { q } });
               }}
             >
               <Search className="h-4 w-4 text-muted-foreground" />
@@ -203,9 +170,7 @@ export function SiteHeader() {
                 autoFocus
                 value={q}
                 onChange={(event) => setQ(event.target.value)}
-                placeholder={
-                  location.pathname === "/shorts" ? "Search short dramas" : "Search movies & shows"
-                }
+                placeholder="Search movies & shows"
                 className="h-11 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               />
               <Button type="submit" size="sm" variant="hero" className="rounded-full">
@@ -214,23 +179,13 @@ export function SiteHeader() {
             </form>
           </DialogContent>
         </Dialog>
-        <Button
-          asChild
-          variant="ghost"
-          size="icon"
-          aria-label="Personalized recommendations"
-          title="Recommendations"
-        >
-          <Link to="/" hash="recommendations">
-            <Sparkles />
-          </Link>
-        </Button>
+
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="glass" size="sm" className="ml-auto rounded-full sm:ml-0">
-                <User />
-                <span className="hidden max-w-32 truncate sm:inline">{user.email}</span>
+              <Button variant="glass" size="sm" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <span className="hidden sm:inline max-w-32 truncate">{user.email}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -254,7 +209,7 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button asChild variant="hero" size="sm" className="ml-auto rounded-full sm:ml-0">
+          <Button asChild variant="hero" size="sm" className="rounded-full">
             <Link to="/login">Sign in</Link>
           </Button>
         )}

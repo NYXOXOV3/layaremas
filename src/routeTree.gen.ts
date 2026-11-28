@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AnimeRouteImport } from './routes/anime'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as CountriesRouteImport } from './routes/countries'
 import { Route as GenresRouteImport } from './routes/genres'
@@ -21,7 +22,6 @@ import { Route as PartyRouteImport } from './routes/party'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SearchRouteImport } from './routes/search'
-import { Route as ShortsRouteImport } from './routes/shorts'
 import { Route as TvShowsRouteImport } from './routes/tv-shows'
 import { Route as YearsRouteImport } from './routes/years'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
@@ -36,7 +36,6 @@ import { Route as AuthenticatedAdminCatalogRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminEmbedRouteImport } from './routes/_authenticated/admin.embed'
 import { Route as AuthenticatedAdminServersRouteImport } from './routes/_authenticated/admin.servers'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
-import { Route as AuthenticatedAdminShortmaxRouteImport } from './routes/_authenticated/admin.shortmax'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminVideosRouteImport } from './routes/_authenticated/admin.videos'
 import { Route as AuthenticatedPartyCodeRouteImport } from './routes/_authenticated/party.$code'
@@ -52,6 +51,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnimeRoute = AnimeRouteImport.update({
+  id: '/anime',
+  path: '/anime',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsRoute = CollectionsRouteImport.update({
@@ -102,11 +106,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const SearchRoute = SearchRouteImport.update({
   id: '/search',
   path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ShortsRoute = ShortsRouteImport.update({
-  id: '/shorts',
-  path: '/shorts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TvShowsRoute = TvShowsRouteImport.update({
@@ -182,12 +181,6 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminShortmaxRoute =
-  AuthenticatedAdminShortmaxRouteImport.update({
-    id: '/shortmax',
-    path: '/shortmax',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -227,6 +220,7 @@ const ApiPublicJobsTmdbSyncRoute = ApiPublicJobsTmdbSyncRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
   '/collections': typeof CollectionsRoute
   '/countries': typeof CountriesRoute
   '/genres': typeof GenresRoute
@@ -237,7 +231,6 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/shorts': typeof ShortsRoute
   '/tv-shows': typeof TvShowsRoute
   '/years': typeof YearsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -251,7 +244,6 @@ export interface FileRoutesByFullPath {
   '/admin/embed': typeof AuthenticatedAdminEmbedRoute
   '/admin/servers': typeof AuthenticatedAdminServersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/shortmax': typeof AuthenticatedAdminShortmaxRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/party/$code': typeof AuthenticatedPartyCodeRoute
@@ -263,6 +255,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/anime': typeof AnimeRoute
   '/collections': typeof CollectionsRoute
   '/countries': typeof CountriesRoute
   '/genres': typeof GenresRoute
@@ -273,7 +266,6 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/shorts': typeof ShortsRoute
   '/tv-shows': typeof TvShowsRoute
   '/years': typeof YearsRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -286,7 +278,6 @@ export interface FileRoutesByTo {
   '/admin/embed': typeof AuthenticatedAdminEmbedRoute
   '/admin/servers': typeof AuthenticatedAdminServersRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/admin/shortmax': typeof AuthenticatedAdminShortmaxRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/party/$code': typeof AuthenticatedPartyCodeRoute
@@ -300,6 +291,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/anime': typeof AnimeRoute
   '/collections': typeof CollectionsRoute
   '/countries': typeof CountriesRoute
   '/genres': typeof GenresRoute
@@ -310,7 +302,6 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
-  '/shorts': typeof ShortsRoute
   '/tv-shows': typeof TvShowsRoute
   '/years': typeof YearsRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -324,7 +315,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/embed': typeof AuthenticatedAdminEmbedRoute
   '/_authenticated/admin/servers': typeof AuthenticatedAdminServersRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
-  '/_authenticated/admin/shortmax': typeof AuthenticatedAdminShortmaxRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/videos': typeof AuthenticatedAdminVideosRoute
   '/_authenticated/party/$code': typeof AuthenticatedPartyCodeRoute
@@ -338,6 +328,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/anime'
     | '/collections'
     | '/countries'
     | '/genres'
@@ -348,7 +339,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/shorts'
     | '/tv-shows'
     | '/years'
     | '/account'
@@ -362,7 +352,6 @@ export interface FileRouteTypes {
     | '/admin/embed'
     | '/admin/servers'
     | '/admin/settings'
-    | '/admin/shortmax'
     | '/admin/users'
     | '/admin/videos'
     | '/party/$code'
@@ -374,6 +363,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/anime'
     | '/collections'
     | '/countries'
     | '/genres'
@@ -384,7 +374,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/shorts'
     | '/tv-shows'
     | '/years'
     | '/account'
@@ -397,7 +386,6 @@ export interface FileRouteTypes {
     | '/admin/embed'
     | '/admin/servers'
     | '/admin/settings'
-    | '/admin/shortmax'
     | '/admin/users'
     | '/admin/videos'
     | '/party/$code'
@@ -410,6 +398,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/anime'
     | '/collections'
     | '/countries'
     | '/genres'
@@ -420,7 +409,6 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/search'
-    | '/shorts'
     | '/tv-shows'
     | '/years'
     | '/_authenticated/account'
@@ -434,7 +422,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/embed'
     | '/_authenticated/admin/servers'
     | '/_authenticated/admin/settings'
-    | '/_authenticated/admin/shortmax'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/videos'
     | '/_authenticated/party/$code'
@@ -448,6 +435,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AnimeRoute: typeof AnimeRoute
   CollectionsRoute: typeof CollectionsRoute
   CountriesRoute: typeof CountriesRoute
   GenresRoute: typeof GenresRoute
@@ -458,7 +446,6 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
-  ShortsRoute: typeof ShortsRoute
   TvShowsRoute: typeof TvShowsRoute
   YearsRoute: typeof YearsRoute
   MovieIdRoute: typeof MovieIdRoute
@@ -484,6 +471,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anime': {
+      id: '/anime'
+      path: '/anime'
+      fullPath: '/anime'
+      preLoaderRoute: typeof AnimeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections': {
@@ -554,13 +548,6 @@ declare module '@tanstack/react-router' {
       path: '/search'
       fullPath: '/search'
       preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/shorts': {
-      id: '/shorts'
-      path: '/shorts'
-      fullPath: '/shorts'
-      preLoaderRoute: typeof ShortsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tv-shows': {
@@ -661,13 +648,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/shortmax': {
-      id: '/_authenticated/admin/shortmax'
-      path: '/shortmax'
-      fullPath: '/admin/shortmax'
-      preLoaderRoute: typeof AuthenticatedAdminShortmaxRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -726,7 +706,6 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminEmbedRoute: typeof AuthenticatedAdminEmbedRoute
   AuthenticatedAdminServersRoute: typeof AuthenticatedAdminServersRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
-  AuthenticatedAdminShortmaxRoute: typeof AuthenticatedAdminShortmaxRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminVideosRoute: typeof AuthenticatedAdminVideosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -738,7 +717,6 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminEmbedRoute: AuthenticatedAdminEmbedRoute,
   AuthenticatedAdminServersRoute: AuthenticatedAdminServersRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
-  AuthenticatedAdminShortmaxRoute: AuthenticatedAdminShortmaxRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminVideosRoute: AuthenticatedAdminVideosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -767,6 +745,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AnimeRoute: AnimeRoute,
   CollectionsRoute: CollectionsRoute,
   CountriesRoute: CountriesRoute,
   GenresRoute: GenresRoute,
@@ -777,7 +756,6 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
-  ShortsRoute: ShortsRoute,
   TvShowsRoute: TvShowsRoute,
   YearsRoute: YearsRoute,
   MovieIdRoute: MovieIdRoute,

@@ -24,7 +24,6 @@ const links = [
   { to: "/admin", label: "Dashboard", exact: true },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/servers", label: "Servers" },
-  { to: "/admin/shortmax", label: "ShortMax API keys" },
   { to: "/admin/videos", label: "Videos" },
   { to: "/admin/catalog", label: "Film catalog" },
   { to: "/admin/ads", label: "Advertisements" },

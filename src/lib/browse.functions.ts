@@ -31,7 +31,7 @@ const norm = (r: TmdbResult, t: MediaType): MediaItem => ({
 });
 
 export const discover = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         type: z.enum(["movie", "tv"]),
@@ -46,8 +46,9 @@ export const discover = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    const defaultSort = "popularity.desc";
     const p: Record<string, string> = {
-      sort_by: data.sort ?? "popularity.desc",
+      sort_by: data.sort ?? defaultSort,
       page: String(data.page),
       include_adult: "false",
     };
@@ -58,6 +59,13 @@ export const discover = createServerFn({ method: "GET" })
     if (data.company) p["with_companies"] = String(data.company);
     if (data.network) p["with_networks"] = String(data.network);
     try {
+      const now = new Date().toISOString().split("T")[0];
+      // Add TMDB date filter to exclude future releases
+      if (data.type === "movie") {
+        p["primary_release_date.lte"] = now;
+      } else {
+        p["first_air_date.lte"] = now;
+      }
       const r = await tmdb(`/discover/${data.type}`, p);
       const results = (r.results ?? []) as TmdbResult[];
       const normalized = results.map((item) => norm(item, data.type));
@@ -74,7 +82,7 @@ export const discover = createServerFn({ method: "GET" })
   });
 
 export const getGenres = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ type: z.enum(["movie", "tv"]) }).parse(d))
+  .validator((d) => z.object({ type: z.enum(["movie", "tv"]) }).parse(d))
   .handler(async ({ data }) => {
     try {
       const r = await tmdb(`/genre/${data.type}/list`);
@@ -86,7 +94,7 @@ export const getGenres = createServerFn({ method: "GET" })
   });
 
 export const getCollection = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         kind: z.enum(["collection", "company", "network"]),

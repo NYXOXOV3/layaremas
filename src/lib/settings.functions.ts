@@ -45,7 +45,7 @@ const url = z.string().url().max(2000).nullable();
 
 export const saveSiteSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         site_name: z.string().min(1).max(60),

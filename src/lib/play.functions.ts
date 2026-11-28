@@ -17,7 +17,7 @@ async function ping(url: string) {
 }
 
 export const getPlayback = createServerFn({ method: "POST" })
-  .inputValidator((d) => playbackInputSchema.parse(d))
+  .validator((d) => playbackInputSchema.parse(d))
   .handler(async ({ data }) => {
     const bearer = getRequestHeader("authorization");
     const sb = publicClient(process.env["SUPABASE_URL"], process.env["SUPABASE_PUBLISHABLE_KEY"], bearer);

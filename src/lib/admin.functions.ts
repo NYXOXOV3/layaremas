@@ -19,7 +19,7 @@ export const getEmbedSettings = createServerFn({ method: "GET" })
 
 export const saveEmbedSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => saveEmbedTemplatesSchema.parse(d))
+  .validator((d) => saveEmbedTemplatesSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { rights_confirmed: _confirmed, ...templates } = data;
@@ -56,7 +56,7 @@ export const getTmdbApiKeyStatus = createServerFn({ method: "GET" })
 
 export const saveTmdbApiKey = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ apiKey: z.string().trim().min(1).max(4096) }).parse(d))
+  .validator((d) => z.object({ apiKey: z.string().trim().min(1).max(4096) }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.rpc("admin_set_tmdb_api_key", {
@@ -115,7 +115,7 @@ export const listUsers = createServerFn({ method: "GET" })
 
 export const updateUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         id: z.string().uuid(),
@@ -142,7 +142,7 @@ export const updateUser = createServerFn({ method: "POST" })
 
 export const deleteUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     if (data.id === context.userId) throw new Error("You cannot delete yourself");
@@ -172,7 +172,7 @@ export const listServers = createServerFn({ method: "GET" })
 
 export const saveServer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => serverSchema.parse(d))
+  .validator((d) => serverSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { id, ...rest } = data;
@@ -186,7 +186,7 @@ export const saveServer = createServerFn({ method: "POST" })
 
 export const deleteServer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     await context.supabase.from("server_config").delete().eq("id", data.id);
@@ -235,7 +235,7 @@ export const listVideos = createServerFn({ method: "GET" })
 
 export const saveVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => videoSourceSchema.parse(d))
+  .validator((d) => videoSourceSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { data: server } = await context.supabase.from("server_config").select("base_url").eq("id", data.server_id).single();
@@ -262,7 +262,7 @@ export const listCatalog = createServerFn({ method: "GET" })
 
 export const importCatalogTitle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int().positive() }).parse(d))
+  .validator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int().positive() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const title = await getDetails({ data });
@@ -272,61 +272,11 @@ export const importCatalogTitle = createServerFn({ method: "POST" })
 
 export const deleteVideo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     await context.supabase.from("licensed_videos").delete().eq("id", data.id);
     await audit(context, "video.delete", data.id);
-    return { ok: true };
-  });
-
-const shortmaxKeySchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string().min(1).max(120),
-  apiKey: z.string().min(1).max(4096),
-  isActive: z.boolean().default(true),
-});
-
-export const listShortMaxApiKeys = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    await assertAdmin(context);
-    const { data } = await context.supabase.rpc("admin_shortmax_api_keys");
-    const rows = data as Array<{ id: string; name: string; api_key: string; is_active: boolean; requests_today: number; request_date: string }>;
-    return rows.map((row) => ({
-      id: row.id,
-      name: row.name,
-      apiKey: row.api_key,
-      isActive: row.is_active,
-      requestsToday: row.requests_today,
-      requestDate: row.request_date,
-    }));
-  });
-
-export const saveShortMaxApiKey = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => shortmaxKeySchema.parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { data: id, error } = await context.supabase.rpc("admin_set_shortmax_api_key", {
-      p_id: data.id ?? null,
-      p_name: data.name,
-      p_api_key: data.apiKey,
-      p_is_active: data.isActive,
-    });
-    if (error) throw new Error("Could not save ShortMax API key");
-    return { id };
-  });
-
-export const deleteShortMaxApiKey = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    const { error } = await context.supabase.rpc("admin_delete_shortmax_api_key", {
-      p_id: data.id,
-    });
-    if (error) throw new Error("Could not delete ShortMax API key");
     return { ok: true };
   });
 
@@ -341,7 +291,7 @@ export const listAdvertisements = createServerFn({ method: "GET" })
 
 export const saveAdvertisement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => advertisementSchema.parse(d))
+  .validator((d) => advertisementSchema.parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { id, ...fields } = data;
@@ -356,7 +306,7 @@ export const saveAdvertisement = createServerFn({ method: "POST" })
 
 export const deleteAdvertisement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     const { error } = await context.supabase.from("advertisements").delete().eq("id", data.id);

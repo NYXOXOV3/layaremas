@@ -190,7 +190,7 @@ async function loadRecentEpisodes(ids: number[]): Promise<RecentEpisode[]> {
 }
 
 export const getRecentEpisodes = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ ids: z.array(z.number().int().positive()).max(8) }).parse(d))
+  .validator((d) => z.object({ ids: z.array(z.number().int().positive()).max(8) }).parse(d))
   .handler(async ({ data }): Promise<RecentEpisode[]> => {
     try {
       return await loadRecentEpisodes(data.ids);
@@ -258,7 +258,7 @@ export const getHome = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 export const searchMedia = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ q: z.string().max(120) }).parse(d))
+  .validator((d) => z.object({ q: z.string().max(120) }).parse(d))
   .handler(async ({ data }) => {
     if (!data.q.trim()) return [] as MediaItem[];
     try {
@@ -274,7 +274,7 @@ export const searchMedia = createServerFn({ method: "GET" })
   });
 
 export const getDetails = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int() }).parse(d))
+  .validator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int() }).parse(d))
   .handler(async ({ data }) => {
     const { readCatalogDetails, persistTmdbCatalog } = await import("./catalog-store.server");
     const cached = await readCatalogDetails(data.type, data.id);
@@ -348,7 +348,7 @@ export const getDetails = createServerFn({ method: "GET" })
 export type Details = Awaited<ReturnType<typeof getDetails>>;
 
 export const getCastMembers = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         type: z.enum(["movie", "tv"]),
@@ -382,7 +382,7 @@ export const getCastMembers = createServerFn({ method: "GET" })
   });
 
 export const getPersonProfile = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ id: z.number().int().positive() }).parse(d))
+  .validator((d) => z.object({ id: z.number().int().positive() }).parse(d))
   .handler(async ({ data }): Promise<PersonProfile | null> => {
     try {
       const response = await tmdb(`/person/${data.id}`, { append_to_response: "combined_credits" });
@@ -461,7 +461,7 @@ export interface SeasonEpisode {
 }
 
 export const getSeasonEpisodes = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ id: z.number().int().positive(), season: z.number().int().nonnegative() }).parse(d),
   )
   .handler(async ({ data }): Promise<SeasonEpisode[]> => {
@@ -510,11 +510,11 @@ async function getRecommendations(type: MediaType, id: number) {
 }
 
 export const getMovieRecommendations = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ id: z.number().int().positive() }).parse(d))
+  .validator((d) => z.object({ id: z.number().int().positive() }).parse(d))
   .handler(async ({ data }) => getRecommendations("movie", data.id));
 
 export const getMediaRecommendations = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         type: z.enum(["movie", "tv"]),
@@ -526,7 +526,7 @@ export const getMediaRecommendations = createServerFn({ method: "GET" })
 
 // Lightweight preview for hover cards: details + trailer in one call.
 export const getHoverPreview = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int() }).parse(d))
+  .validator((d) => z.object({ type: z.enum(["movie", "tv"]), id: z.number().int() }).parse(d))
   .handler(async ({ data }) => {
     const details = await getDetails({ data });
     return {
@@ -546,7 +546,7 @@ export type HoverPreviewData = Awaited<ReturnType<typeof getHoverPreview>>;
 /** Just the YouTube trailer key for a title; used by the hero carousel to
  *  autoplay trailers. Returns null when no trailer or TMDB is unavailable. */
 export const getTrailerKey = createServerFn({ method: "GET" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ type: z.enum(["movie", "tv"]), id: z.number().int().positive() }).parse(d),
   )
   .handler(async ({ data }): Promise<string | null> => {

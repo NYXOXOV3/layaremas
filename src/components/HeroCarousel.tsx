@@ -7,8 +7,8 @@ import { getTrailerKey, type MediaItem } from "@/lib/tmdb.functions";
 import { tmdbImg } from "@/lib/img";
 import hero from "@/assets/hero.jpg";
 
-const SLIDE_MS = 10000;
-const TRAILER_DELAY_MS = 3500;
+const SLIDE_MS = 20000;
+const TRAILER_DELAY_MS = 5000;
 const HERO_SLIDES = 5;
 
 function FallbackHero() {
@@ -31,6 +31,7 @@ export function HeroCarousel({ items }: { items: MediaItem[] }) {
   const [videoReady, setVideoReady] = useState(false);
   const [muted, setMuted] = useState(true);
   const [origin, setOrigin] = useState("");
+  const [trailerPlayed, setTrailerPlayed] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // Only slide images that are visible or about to be visible are downloaded.
   const [shown, setShown] = useState<number[]>([0, 1]);
@@ -53,15 +54,20 @@ export function HeroCarousel({ items }: { items: MediaItem[] }) {
     setTrailerOn(false);
     setVideoReady(false);
     setMuted(true);
+    setTrailerPlayed(false);
     setShown((s) => Array.from(new Set([...s, index, (index + 1) % slides.length])));
     if (slides.length < 2) return;
     const t = setTimeout(() => setTrailerOn(true), TRAILER_DELAY_MS);
-    const next = setTimeout(() => setIndex((i) => (i + 1) % slides.length), SLIDE_MS);
-    return () => {
-      clearTimeout(t);
-      clearTimeout(next);
-    };
+    return () => clearTimeout(t);
   }, [index, slides.length]);
+
+  // Auto-advance after trailer has played for a while
+  useEffect(() => {
+    if (!trailerOn || !videoReady || !trailerKey) return;
+    setTrailerPlayed(true);
+    const next = setTimeout(() => setIndex((i) => (i + 1) % slides.length), SLIDE_MS);
+    return () => clearTimeout(next);
+  }, [videoReady, trailerKey]);
 
   if (!slides.length || !active) return <FallbackHero />;
 
@@ -78,7 +84,7 @@ export function HeroCarousel({ items }: { items: MediaItem[] }) {
               alt=""
               decoding="async"
               fetchPriority={i === 0 && index === 0 ? "high" : undefined}
-              className="absolute inset-0 h-full w-full object-cover opacity-80"
+              className="absolute inset-0 h-full w-full object-cover opacity-60"
             />
           )}
           {i === index && trailerOn && trailerKey && (
@@ -96,11 +102,11 @@ export function HeroCarousel({ items }: { items: MediaItem[] }) {
           )}
         </div>
       ))}
-      <div className="absolute inset-0 bg-fade-left" />
-      <div className="absolute inset-0 bg-fade-bottom" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/30 to-transparent" />
 
-      <div className="relative mx-auto flex min-h-[100svh] w-full max-w-7xl items-end px-4 pb-20 pt-24 md:px-8">
-        <div key={`${active.media_type}-${active.id}`} className="max-w-3xl">
+      <div className="relative flex min-h-[100svh] w-full items-end px-4 pb-20 pt-24 md:px-8">
+        <div key={`${active.media_type}-${active.id}`} className="max-w-3xl w-full max-w-7xl mx-0">
           <p className="mb-3 text-xs font-bold uppercase tracking-[0.25em] text-primary">
             Trending this week
           </p>
